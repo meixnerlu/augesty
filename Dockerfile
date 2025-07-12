@@ -13,10 +13,6 @@ RUN apt-get update && apt-get install -y \
     gcc \
     libsqlite3-dev
 
-ENV OPENSSL_DIR=/usr
-ENV OPENSSL_LIB_DIR=/usr/lib/x86_64-linux-gnu
-ENV OPENSSL_INCLUDE_DIR=/usr/include
-
 COPY . .
 WORKDIR /usr/src/augesty/backend
 ENV SQLX_OFFLINE=true
