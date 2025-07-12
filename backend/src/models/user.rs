@@ -1,4 +1,7 @@
-use sqlx::{prelude::{FromRow, Type}, Sqlite, Transaction};
+use sqlx::{
+    Sqlite, Transaction,
+    prelude::{FromRow, Type},
+};
 
 use crate::models::{permission::Permission, user_identifier::UserIdentifier};
 

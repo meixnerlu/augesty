@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   augesty:
-    image: augesty:latest
+    image: meixnerlu/augesty:latest
     container_name: augesty
     restart: unless-stopped
     ports:

@@ -24,6 +24,8 @@ pub enum Error {
     Opaque(&'static str),
     #[from]
     Jwt(jwt_simple::Error),
+    #[from]
+    Ssl(openssl::error::ErrorStack),
 }
 
 impl std::error::Error for Error {}

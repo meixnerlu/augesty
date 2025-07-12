@@ -41,7 +41,7 @@ impl Display for PermissionType {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let text = match self {
             &Self::Pull => "pull",
-            &Self::Push => "push"
+            &Self::Push => "push",
         };
         write!(f, "{}", text)
     }

@@ -1,8 +1,8 @@
-use axum::{extract::State, Json};
+use axum::{Json, extract::State};
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 
-use crate::{extractors::PermissionExtractor, models::user::User, state::AppState, USER_TAG};
+use crate::{USER_TAG, extractors::PermissionExtractor, models::user::User, state::AppState};
 
 #[derive(Debug, Clone, ToSchema, Deserialize)]
 pub struct CreateUserBody {
@@ -12,7 +12,7 @@ pub struct CreateUserBody {
 
 #[derive(Debug, Clone, ToSchema, Serialize)]
 pub struct CreateUserResponse {
-    user_name: String
+    user_name: String,
 }
 
 #[utoipa::path(
@@ -34,7 +34,8 @@ pub async fn create_user(
     use argon2::PasswordHasher;
     super::verify_admin(&user)?;
 
-    let salt = argon2::password_hash::SaltString::generate(&mut argon2::password_hash::rand_core::OsRng);
+    let salt =
+        argon2::password_hash::SaltString::generate(&mut argon2::password_hash::rand_core::OsRng);
     let argon = argon2::Argon2::default();
     let pw_hash = argon.hash_password(body.password.as_bytes(), &salt)?;
 
@@ -42,6 +43,7 @@ pub async fn create_user(
     user.insert(state.db()).await?;
     user.add_hash(&pw_hash.to_string(), state.db()).await?;
 
-    Ok(Json(CreateUserResponse { user_name: user.name }))
+    Ok(Json(CreateUserResponse {
+        user_name: user.name,
+    }))
 }
-

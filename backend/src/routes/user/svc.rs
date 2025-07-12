@@ -1,8 +1,8 @@
-use axum::{extract::State, Json};
+use axum::{Json, extract::State};
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 
-use crate::{extractors::PermissionExtractor, models::user::User, state::AppState, USER_TAG};
+use crate::{USER_TAG, extractors::PermissionExtractor, models::user::User, state::AppState};
 
 #[derive(Debug, Clone, ToSchema, Deserialize)]
 pub struct CreateServiceAccountBody {
@@ -11,7 +11,7 @@ pub struct CreateServiceAccountBody {
 
 #[derive(Debug, Clone, ToSchema, Serialize)]
 pub struct CreateServiceAccountResponse {
-    svc_name: String
+    svc_name: String,
 }
 
 #[utoipa::path(
@@ -35,18 +35,20 @@ pub async fn create_service_account(
     let user = User::new_service_account(body.name);
     user.insert(state.db()).await?;
 
-    Ok(Json(CreateServiceAccountResponse { svc_name: user.name }))
+    Ok(Json(CreateServiceAccountResponse {
+        svc_name: user.name,
+    }))
 }
 
 #[derive(Debug, Clone, ToSchema, Deserialize)]
 pub struct AddIdentifierBody {
     svc_name: String,
-    repo: String
+    repo: String,
 }
 
 #[derive(Debug, Clone, ToSchema, Serialize)]
 pub struct AddIdentifierResponse {
-    svc_name: String
+    svc_name: String,
 }
 
 #[utoipa::path(
@@ -70,5 +72,7 @@ pub async fn add_identifier(
     let user = User::find_by_name(&body.svc_name, state.db()).await?;
     user.add_user_identifier(&body.repo, state.db()).await?;
 
-    Ok(Json(AddIdentifierResponse { svc_name: user.name }))
+    Ok(Json(AddIdentifierResponse {
+        svc_name: user.name,
+    }))
 }

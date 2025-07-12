@@ -108,6 +108,7 @@ dependencies = [
  "dotenvy",
  "github-oidc",
  "jwt-simple",
+ "openssl",
  "rand 0.9.1",
  "serde",
  "sqlx",

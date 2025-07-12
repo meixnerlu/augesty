@@ -1,5 +1,11 @@
 use argon2::PasswordVerifier;
 use jwt_simple::prelude::{ECDSAP384KeyPairLike, ECDSAP384PublicKeyLike, ES384KeyPair};
+use openssl::{
+    asn1::Asn1Time,
+    ec::EcKey,
+    pkey::PKey,
+    x509::{X509Builder, X509NameBuilder},
+};
 use std::{ops::Deref, sync::Arc};
 
 use crate::{
@@ -44,9 +50,10 @@ impl InnerState {
         db_options = db_options.filename(&db_url);
         let db = sqlx::SqlitePool::connect_with(db_options).await?;
         let jwt_key = ES384KeyPair::generate();
-        tokio::fs::write("/config/jwt.pub", jwt_key.public_key().to_pem()?).await?;
         let own_url = std::env::var("OWN_URL")?;
         let docker_url = std::env::var("DOCKER_URL")?;
+        let cert = create_cert_from_pair(&jwt_key, &own_url)?;
+        tokio::fs::write("/config/jwt.pub", cert).await?;
 
         Ok(InnerState {
             db,
@@ -145,6 +152,32 @@ impl InnerState {
 
         Ok(perms)
     }
+}
+
+fn create_cert_from_pair(pair: &ES384KeyPair, own_url: &str) -> crate::Result<Vec<u8>> {
+    let private_pem = pair.to_pem()?;
+    let ec_key = EcKey::private_key_from_pem(&private_pem.as_bytes())?;
+    let pkey = PKey::from_ec_key(ec_key)?;
+
+    let mut name = X509NameBuilder::new()?;
+    name.append_entry_by_text("CN", own_url)?;
+    let name = name.build();
+
+    let mut builder = X509Builder::new()?;
+    builder.set_version(2)?;
+    builder.set_subject_name(&name)?;
+    builder.set_issuer_name(&name)?;
+    builder.set_pubkey(&pkey)?;
+    builder.set_not_before(&Asn1Time::days_from_now(0)?.as_ref())?;
+    builder.set_not_after(&Asn1Time::days_from_now(365)?.as_ref())?;
+    let mut serial = openssl::bn::BigNum::new()?;
+    serial.rand(64, openssl::bn::MsbOption::MAYBE_ZERO, false)?;
+    let serial = serial.to_asn1_integer()?;
+
+    builder.set_serial_number(&serial.as_ref())?;
+    builder.sign(&pkey, openssl::hash::MessageDigest::sha384())?;
+
+    Ok(builder.build().to_pem()?)
 }
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]

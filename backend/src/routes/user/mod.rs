@@ -1,12 +1,12 @@
 mod user;
-use axum::{extract::State, Json};
+use axum::{Json, extract::State};
 use serde::{Deserialize, Serialize};
 pub use user::*;
 mod svc;
 pub use svc::*;
 use utoipa::ToSchema;
 
-use crate::{extractors::PermissionExtractor, models::user::User, state::AppState, USER_TAG};
+use crate::{USER_TAG, extractors::PermissionExtractor, models::user::User, state::AppState};
 
 pub(self) fn verify_admin(user: &User) -> crate::Result<()> {
     if user.name != "admin" {
@@ -24,7 +24,7 @@ pub struct GrantAccessBody {
 
 #[derive(Debug, Clone, ToSchema, Serialize)]
 pub struct GrantAccessResponse {
-    user_name: String
+    user_name: String,
 }
 
 #[utoipa::path(
@@ -46,8 +46,10 @@ pub async fn grant_access(
     verify_admin(&user)?;
 
     let user = User::find_by_name(&body.name, state.db()).await?;
-    user.add_permission(body.image, body.access, state.db()).await?;
+    user.add_permission(body.image, body.access, state.db())
+        .await?;
 
-
-    Ok(Json(GrantAccessResponse { user_name: user.name }))
+    Ok(Json(GrantAccessResponse {
+        user_name: user.name,
+    }))
 }
