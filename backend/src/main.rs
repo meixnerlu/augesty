@@ -103,6 +103,7 @@ async fn main() -> Result<()> {
 
     tracing::info!("{:<12}- Server running on http://0.0.0.0:{PORT}", "API");
     axum::serve(listener, app).with_graceful_shutdown(shutdown_signal()).await?;
+    tokio::fs::remove_file("/config/jwt.pub").await?;
     state.db().close().await;
     tracing::info!("{:<12}- Server shut down gracefully", "API");
 
