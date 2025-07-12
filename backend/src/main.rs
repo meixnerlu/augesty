@@ -103,8 +103,10 @@ async fn main() -> Result<()> {
 
     tracing::info!("{:<12}- Server running on http://0.0.0.0:{PORT}", "API");
 
-    axum::serve(listener, app).with_graceful_shutdown(shutdown_signal()).await?;
-    
+    axum::serve(listener, app)
+        .with_graceful_shutdown(shutdown_signal())
+        .await?;
+
     tokio::fs::remove_file("/config/jwt.pub").await?;
     state.db().close().await;
     tracing::info!("{:<12}- Server shut down gracefully", "API");
@@ -113,17 +115,20 @@ async fn main() -> Result<()> {
 }
 
 mod trace {
-    use axum::{extract::Request, middleware::Next, response::Response};
+    use axum::{
+        extract::Request,
+        middleware::Next,
+        response::Response,
+    };
     use tokio::time::Instant;
-    use tracing::info;
     use tracing_subscriber::EnvFilter;
 
     pub async fn logging_layer(request: Request, next: Next) -> Response {
         let method = request.method().to_string();
         let route = request.uri().path().to_string();
         let uuid = uuid::Uuid::new_v4();
-        info!(
-            "{:<12} - Handling {method} on {route} with id {uuid}",
+        tracing::info!(
+            "{:<12}- Handling {method} on {route} with id {uuid}",
             "REQUEST"
         );
 
@@ -132,8 +137,8 @@ mod trace {
         let elapsed = now.elapsed().as_millis();
 
         let status = response.status().to_string();
-        info!(
-            "{:<12} - {uuid} returned {status} in {elapsed} ms",
+        tracing::info!(
+            "{:<12}- {uuid} returned {status} in {elapsed} ms",
             "RESPONSE"
         );
 
@@ -158,7 +163,9 @@ mod trace {
 
 async fn shutdown_signal() {
     let ctrl = async {
-        tokio::signal::ctrl_c().await.expect("error listening for ctrl_c");
+        tokio::signal::ctrl_c()
+            .await
+            .expect("error listening for ctrl_c");
     };
     #[cfg(unix)]
     let term = async {

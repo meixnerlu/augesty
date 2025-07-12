@@ -1,10 +1,11 @@
 use axum::{Json, extract::State};
-use axum_extra::extract::Query;
+use axum_extra::extract::{Query, WithRejection};
 use serde::{Deserialize, Serialize};
 use utoipa::{IntoParams, ToSchema};
 
 use crate::{
     TOKEN_TAG,
+    error::LoggedRejection,
     extractors::{GithubExtractor, PermissionExtractor},
     models::{permission::PermissionType, user::User},
     state::AppState,
@@ -77,7 +78,7 @@ pub struct TokenResponse {
 pub async fn token(
     State(state): State<AppState>,
     PermissionExtractor { user, permissions }: PermissionExtractor,
-    Query(params): Query<TokenQuery>,
+    WithRejection(Query(params), _): WithRejection<Query<TokenQuery>, LoggedRejection>,
 ) -> crate::Result<Json<TokenResponse>> {
     let scopes: Vec<Scope> = params
         .scope
@@ -102,6 +103,12 @@ pub async fn token(
     }
 
     if &params.service != state.docker_url() {
+        tracing::debug!(
+            "{:<12}- registry {} asked for registry {}",
+            "Error",
+            &params.service,
+            state.docker_url()
+        );
         return Err(crate::Error::Unauthorized("Invalid Registry"));
     }
 

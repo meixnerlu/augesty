@@ -104,6 +104,7 @@ dependencies = [
  "axum",
  "axum-extra",
  "base64",
+ "data-encoding",
  "derive_more",
  "dotenvy",
  "github-oidc",
@@ -534,6 +535,12 @@ name = "ct-codecs"
 version = "1.1.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9b10589d1a5e400d61f9f38f12f884cfd080ff345de8f17efda36fe0e4a02aa8"
+
+[[package]]
+name = "data-encoding"
+version = "2.9.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2a2330da5de22e8a3cb63252ce2abb30116bf5265e89c0e01bc17015ce30a476"
 
 [[package]]
 name = "der"

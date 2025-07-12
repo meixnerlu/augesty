@@ -1,8 +1,10 @@
 use argon2::PasswordVerifier;
+use data_encoding::BASE32_NOPAD;
 use jwt_simple::prelude::{ECDSAP384KeyPairLike, ECDSAP384PublicKeyLike, ES384KeyPair};
 use openssl::{
     asn1::Asn1Time,
     ec::EcKey,
+    hash::MessageDigest,
     pkey::PKey,
     x509::{X509Builder, X509NameBuilder},
 };
@@ -49,7 +51,8 @@ impl InnerState {
         db_options = db_options.create_if_missing(true);
         db_options = db_options.filename(&db_url);
         let db = sqlx::SqlitePool::connect_with(db_options).await?;
-        let jwt_key = ES384KeyPair::generate();
+        let mut jwt_key = ES384KeyPair::generate();
+        jwt_key = add_kid(jwt_key)?;
         let own_url = std::env::var("OWN_URL")?;
         let docker_url = std::env::var("DOCKER_URL")?;
         let cert = create_cert_from_pair(&jwt_key, &own_url)?;
@@ -156,8 +159,12 @@ impl InnerState {
 
 fn create_cert_from_pair(pair: &ES384KeyPair, own_url: &str) -> crate::Result<Vec<u8>> {
     let private_pem = pair.to_pem()?;
-    let ec_key = EcKey::private_key_from_pem(&private_pem.as_bytes())?;
-    let pkey = PKey::from_ec_key(ec_key)?;
+    let private_ec_key = EcKey::private_key_from_pem(&private_pem.as_bytes())?;
+    let private_pkey = PKey::from_ec_key(private_ec_key)?;
+
+    let public_pem = pair.public_key().to_pem()?;
+    let public_ec_key = EcKey::public_key_from_pem(&public_pem.as_bytes())?;
+    let public_pkey = PKey::from_ec_key(public_ec_key)?;
 
     let mut name = X509NameBuilder::new()?;
     name.append_entry_by_text("CN", own_url)?;
@@ -167,7 +174,7 @@ fn create_cert_from_pair(pair: &ES384KeyPair, own_url: &str) -> crate::Result<Ve
     builder.set_version(2)?;
     builder.set_subject_name(&name)?;
     builder.set_issuer_name(&name)?;
-    builder.set_pubkey(&pkey)?;
+    builder.set_pubkey(&public_pkey)?;
     builder.set_not_before(&Asn1Time::days_from_now(0)?.as_ref())?;
     builder.set_not_after(&Asn1Time::days_from_now(365)?.as_ref())?;
     let mut serial = openssl::bn::BigNum::new()?;
@@ -175,9 +182,26 @@ fn create_cert_from_pair(pair: &ES384KeyPair, own_url: &str) -> crate::Result<Ve
     let serial = serial.to_asn1_integer()?;
 
     builder.set_serial_number(&serial.as_ref())?;
-    builder.sign(&pkey, openssl::hash::MessageDigest::sha384())?;
+    builder.sign(&private_pkey, openssl::hash::MessageDigest::sha384())?;
 
     Ok(builder.build().to_pem()?)
+}
+
+fn add_kid(pair: ES384KeyPair) -> crate::Result<ES384KeyPair> {
+    let public_der = pair.public_key().to_der()?;
+
+    let digest = openssl::hash::hash(MessageDigest::sha256(), &public_der)?;
+    let truncated = &digest[..30];
+    let b32 = BASE32_NOPAD.encode(truncated).to_lowercase();
+    let kid = b32
+        .as_bytes()
+        .chunks(4)
+        .map(std::str::from_utf8)
+        .collect::<Result<Vec<_>, _>>()?
+        .join(":")
+        .to_uppercase();
+
+    Ok(pair.with_key_id(&kid))
 }
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
