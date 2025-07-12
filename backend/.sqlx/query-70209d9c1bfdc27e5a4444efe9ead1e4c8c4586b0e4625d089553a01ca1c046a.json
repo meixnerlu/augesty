@@ -1,0 +1,32 @@
+{
+  "db_name": "SQLite",
+  "query": "\n            SELECT p.id, p.subject, p.permission\n            FROM users u\n            JOIN user_permissions up ON u.id = up.user_id\n            JOIN permissions p ON up.permission_id = p.id\n            WHERE u.name = ?;\n            ",
+  "describe": {
+    "columns": [
+      {
+        "name": "id",
+        "ordinal": 0,
+        "type_info": "Integer"
+      },
+      {
+        "name": "subject",
+        "ordinal": 1,
+        "type_info": "Text"
+      },
+      {
+        "name": "permission",
+        "ordinal": 2,
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "70209d9c1bfdc27e5a4444efe9ead1e4c8c4586b0e4625d089553a01ca1c046a"
+}

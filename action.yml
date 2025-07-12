@@ -1,0 +1,16 @@
+name: 'Augesty Authentication Action'
+description: 'Exchanges a Github token for an Augesty authentication token'
+author: 'meixnerlu'
+inputs:
+  service_account:
+    description: 'name of the service account to use'
+    required: true
+  service_url:
+    description: 'url of the service to authenticate against'
+    required: true
+outputs:
+  accesstoken:
+    description: 'A 5 minute access token for the service account'
+runs:
+  using: 'node16'
+  main: 'dist/index.js'

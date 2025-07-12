@@ -1,0 +1,20 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT user_id FROM user_pw_hash WHERE user_id = (SELECT id FROM users WHERE name = 'admin')",
+  "describe": {
+    "columns": [
+      {
+        "name": "user_id",
+        "ordinal": 0,
+        "type_info": "Integer"
+      }
+    ],
+    "parameters": {
+      "Right": 0
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "f489bd1bee3df1ff4bcc06e2694b4f02526d17d2e21f05b278757eb51042bb3c"
+}

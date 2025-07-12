@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "\n            INSERT OR IGNORE INTO users (name, user_type) \n            VALUES (?, 'user');\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": []
+  },
+  "hash": "06f2ded83110b90279d28508ac41d77d2619e4e1994130b9b083d432420ab6df"
+}

@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "\n            INSERT OR IGNORE INTO permissions(subject, permission)\n            VALUES \n                ('*', 'pull'),\n                ('*', 'push');\n\n            INSERT OR IGNORE INTO user_permissions(user_id, permission_id)\n            SELECT u.id, p.id\n            FROM users AS u\n            JOIN permissions AS p \n                ON p.subject = '*' \n                AND p.permission = 'pull'\n            WHERE u.name = 'admin';\n\n            INSERT OR IGNORE INTO user_permissions(user_id, permission_id)\n            SELECT u.id, p.id\n            FROM users AS u\n            JOIN permissions AS p \n                ON p.subject = '*' \n                AND p.permission = 'push'\n            WHERE u.name = 'admin';\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 0
+    },
+    "nullable": []
+  },
+  "hash": "28b1801dbe259b7efbd7c50806d52d03824bbe0701e2e2e882381bed11037751"
+}

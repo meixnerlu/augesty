@@ -1,0 +1,24 @@
+[package]
+name = "augesty"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+argon2 = { version = "0.5.3", features = ["simple", "std"] }
+axum = { version = "0.8.4", features = ["macros"] }
+derive_more = { version = "2.0.1", features = ["display", "from"] }
+dotenvy = "0.15.7"
+utoipa-axum = "0.2"
+sqlx = { version = "0.8.6", features = ["runtime-tokio", "sqlite"] }
+tokio = { version = "1.46.1", features = ["full"] }
+tracing = "0.1.41"
+tracing-subscriber = { version = "0.3.19", features = ["env-filter", "json"] }
+utoipa = { version = "5.4.0" , features = ["axum_extras"] }
+utoipa-swagger-ui = { version = "9.0.2" , features = ["axum"] }
+jwt-simple = "0.12.12"
+base64 = "0.22.1"
+serde = { version = "1.0.219", features = ["derive"] }
+axum-extra = { version = "0.10.1", features = ["query", "typed-header"] }
+github-oidc = "0.4.0"
+rand = "0.9.1"
+uuid = { version = "1.17.0", features = ["v4"] }

@@ -1,0 +1,36 @@
+version: "3.8"
+
+services:
+  augesty:
+    image: augesty:latest
+    container_name: augesty
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    volumes:
+      - augesty-config:/config
+    environment:
+      - DATABASE_PATH=/config/augesty.db
+      - DOCKER_URL=registry.example.com
+      - OWN_URL=augesty.example.com
+
+  registry:
+    image: registry:2
+    container_name: registry
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    volumes:
+      - augesty-config:/config/augesty:ro
+      - registry-data:/var/lib/registry
+    environment:
+      - REGISTRY_AUTH=token
+      - REGISTRY_AUTH_TOKEN_REALM=https://augesty.example.com/api/token
+      - REGISTRY_AUTH_TOKEN_SERVICE=registry
+      - REGISTRY_AUTH_TOKEN_ISSUER=augesty.example.com
+      - REGISTRY_AUTH_TOKEN_ROOTCERTBUNDLE=/config/augesty/jwt.pub
+      - REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY=/var/lib/registry
+
+volumes:
+  augesty-config:
+  registry-data:
