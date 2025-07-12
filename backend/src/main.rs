@@ -93,7 +93,7 @@ async fn main() -> Result<()> {
 
     let router: Router<_> = router
         .layer(axum::middleware::from_fn(trace::logging_layer))
-        .with_state(state)
+        .with_state(state.clone())
         .merge(SwaggerUi::new("/api/swagger").url("/api/openapi.json", api));
 
     let app = router.into_make_service();
@@ -102,7 +102,10 @@ async fn main() -> Result<()> {
         .unwrap();
 
     tracing::info!("{:<12}- Server running on http://0.0.0.0:{PORT}", "API");
-    axum::serve(listener, app).await?;
+    axum::serve(listener, app).with_graceful_shutdown(shutdown_signal()).await?;
+    state.db().close().await;
+    tracing::info!("{:<12}- Server shut down gracefully", "API");
+
     Ok(())
 }
 
@@ -147,5 +150,25 @@ mod trace {
         } else {
             sub.json().init();
         }
+    }
+}
+
+async fn shutdown_signal() {
+    let ctrl = async {
+        tokio::signal::ctrl_c().await.expect("error listening for ctrl_c");
+    };
+    #[cfg(unix)]
+    let term = async {
+        tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate())
+            .expect("error listening for SIGTERM")
+            .recv()
+            .await;
+    };
+    #[cfg(not(unix))]
+    let term = std::future::pending::<()>();
+
+    tokio::select! {
+        _ = ctrl => {},
+        _ = term => {},
     }
 }
