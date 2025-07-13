@@ -12,5 +12,5 @@ outputs:
   accesstoken:
     description: 'A 5 minute access token for the service account'
 runs:
-  using: 'node16'
-  main: 'index.js'
+  using: 'node20'
+  main: 'dist/index.js'
