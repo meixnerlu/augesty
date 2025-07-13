@@ -1,0 +1,34 @@
+name: build augesty
+on: workflow_dispatch
+
+jobs:
+  build:
+    name: build and push augesty application
+    runs-on: ubuntu-latest
+    permissions:
+      contents: "read"
+      id-token: "write"
+    steps:
+      - name: Checkout master branch
+        id: checkout_project
+        uses: actions/checkout@v4
+      
+      - name: Authenticate with augesty
+        id: auth
+        uses: meixnerlu/augesty@latest
+        with:
+          service_account: ${{ secrets.SVC_NAME }}
+          service_url: https://${{ secrets.AUGESTY_URL }}/api/identify
+      
+      - name: Login Registry
+        uses: docker/login-action@v3
+        with:
+          registry: europe-west4-docker.pkg.dev
+          username: ${{ secrets.SVC_NAME }}
+          password: ${{ steps.auth.outputs.accesstoken }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          push: true
+          tags: ${{ secrets.REGISTRY_URL }}/lukas/augesty

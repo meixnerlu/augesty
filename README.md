@@ -113,7 +113,7 @@ jobs:
         uses: meixnerlu/augesty@v1
         with:
           service_account: my-service-account
-          service_url: https://augesty.example.com/api/token
+          service_url: https://augesty.example.com/api/identify
 
       - name: Use token
         run: |

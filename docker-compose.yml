@@ -26,7 +26,7 @@ services:
     environment:
       - REGISTRY_AUTH=token
       - REGISTRY_AUTH_TOKEN_REALM=https://augesty.example.com/api/token
-      - REGISTRY_AUTH_TOKEN_SERVICE=registry
+      - REGISTRY_AUTH_TOKEN_SERVICE=registry.example.com
       - REGISTRY_AUTH_TOKEN_ISSUER=augesty.example.com
       - REGISTRY_AUTH_TOKEN_ROOTCERTBUNDLE=/config/augesty/jwt.pub
       - REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY=/var/lib/registry
