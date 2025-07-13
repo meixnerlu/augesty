@@ -27,6 +27,7 @@ RUN set -eux; \
       libssl3 libsqlite3-0 ca-certificates; \
     rm -rf /var/lib/apt/lists/*
 ENV RUST_LOG="augesty=info"
+ENV TOKEN_DURATION="5"
 COPY --from=builder /usr/local/cargo/bin/augesty /usr/local/bin/augesty
 EXPOSE 8080
 CMD ["augesty"]

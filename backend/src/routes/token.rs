@@ -61,7 +61,7 @@ impl Scope {
 #[derive(Debug, Clone, ToSchema, Serialize)]
 pub struct TokenResponse {
     token: String,
-    expires_in: i32, // in seconds
+    expires_in: u64, // in seconds
 }
 
 #[utoipa::path(
@@ -85,6 +85,9 @@ pub async fn token(
         .into_iter()
         .map(|scope| Scope::parse_str(&scope))
         .collect::<Result<_, _>>()?;
+
+    tracing::debug!("{:<12}- Scopes: {scopes:?}", "REQUEST");
+    tracing::debug!("{:<12}- Perms: {permissions:?}", "REQUEST");
     for scope in &scopes {
         let permission_types: Vec<PermissionType> = permissions
             .iter()

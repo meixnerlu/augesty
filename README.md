@@ -1,5 +1,7 @@
 # Augesty Token‑Authenticated Docker Registry
 
+!!! This is a fun project for learning purposes !!!
+
 This repository bundles:
 
 1. **`augesty`** – a Rust‑based token server (in `backend/`)
@@ -14,10 +16,10 @@ This is work in progress. Its still missing:
 
 - HTTPS in backend
 - a frontend
+- a clearer permission system
 - automated testing
 
 The security of this is neither tested nor guaranteed!
-It is a fun side project for learning purposes!
 
 ---
 
@@ -35,24 +37,9 @@ It is a fun side project for learning purposes!
 
 ## Getting Started
 
-### 1. Build & run locally
-
-```bash
-# Build your token server image
-cd backend
-docker build -t augesty:latest .
-
-# From repo root, bring up the stack
-docker-compose up -d
-```
-
-- **Augesty** is reachable at `http://localhost:8080`
-- **Registry** is reachable at `http://localhost:5000`  
-  – token auth is configured via the shared `/config/augesty/jwt.pub` pubkey
-
 ---
 
-### 2. Directory & Volumes
+### 1. Directory & Volumes
 
 - **`augesty-config` volume**  
   - Mounted read/write at `/config` in the augesty container  
@@ -65,7 +52,7 @@ docker-compose up -d
 
 ---
 
-### 3. Environment Variables
+### 2. Environment Variables
 
 #### augesty service
 
@@ -124,7 +111,7 @@ jobs:
 
 ## SSL / Reverse‑Proxy
 
-We recommend terminating TLS at your front‑door (e.g. NGINX, Traefik, Caddy). Simply reverse‑proxy:
+I recommend terminating TLS at your front‑door (e.g. NGINX, Traefik, Caddy). Simply reverse‑proxy:
 
 - `https://registry.example.com` → `http://localhost:5000`
 - `https://augesty.example.com` → `http://localhost:8080`

@@ -39,6 +39,7 @@ impl Deref for AppState {
 
 pub struct InnerState {
     db: sqlx::SqlitePool,
+    token_duration: u64,
     jwt_key: ES384KeyPair,
     own_url: String,
     docker_url: String,
@@ -55,11 +56,13 @@ impl InnerState {
         jwt_key = add_kid(jwt_key)?;
         let own_url = std::env::var("OWN_URL")?;
         let docker_url = std::env::var("DOCKER_URL")?;
+        let token_duration = std::env::var("TOKEN_DURATION")?.parse::<u64>().map_err(|_| crate::Error::Opaque("Error parsing TOKEN_DURATION"))?;
         let cert = create_cert_from_pair(&jwt_key, &own_url)?;
         tokio::fs::write("/config/jwt.pub", cert).await?;
 
         Ok(InnerState {
             db,
+            token_duration,
             jwt_key,
             own_url,
             docker_url,
@@ -95,13 +98,13 @@ impl InnerState {
         sub: &str,
         aud: &str,
         scope: Vec<Scope>,
-    ) -> crate::Result<(String, i32)> {
-        let expires_in = 300; // seconds in 5 minutes
+    ) -> crate::Result<(String, u64)> {
+        let expires_in = 60 * self.token_duration;
 
         let claims = DockerClaims { access: scope };
         let mut claims = jwt_simple::claims::Claims::with_custom_claims(
             claims,
-            jwt_simple::prelude::Duration::from_mins(5),
+            jwt_simple::prelude::Duration::from_mins(self.token_duration),
         );
         claims = claims.with_audience(aud);
         claims = claims.with_subject(sub);
