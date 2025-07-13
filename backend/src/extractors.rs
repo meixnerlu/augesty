@@ -11,7 +11,6 @@ use axum_extra::{
         authorization::{Basic, Bearer},
     },
 };
-use github_oidc::GitHubOIDCConfig;
 
 use crate::{
     models::{permission::Permission, user::User},
@@ -54,8 +53,6 @@ where
     }
 }
 
-const GITHUB_OIDC_URL: &str = "https://token.actions.githubusercontent.com";
-
 pub struct GithubExtractor(pub GithubRepo);
 
 pub struct GithubRepo(String);
@@ -76,7 +73,7 @@ where
 
     async fn from_request_parts(
         parts: &mut axum::http::request::Parts,
-        _state: &S,
+        state: &S,
     ) -> Result<Self, Self::Rejection> {
         let oidc_token = parts
             .extract::<TypedHeader<Authorization<Bearer>>>()
@@ -85,13 +82,19 @@ where
             .0
             .token()
             .to_string();
-        let jwks = github_oidc::fetch_jwks(GITHUB_OIDC_URL)
+        let jwks = github_oidc::fetch_jwks(github_oidc::DEFAULT_GITHUB_OIDC_URL)
             .await
             .map_err(|_| crate::Error::Opaque("Error fetching github jwks"))?;
+
+        let State(state): State<AppState> = State::from_request_parts(parts, state)
+            .await
+            .map_err(|_| crate::Error::Opaque("Internal Server Error"))?;
+
         let claims = jwks
             .validate_github_token(
                 &oidc_token,
-                &GitHubOIDCConfig {
+                &github_oidc::GitHubOIDCConfig {
+                    audience: Some(format!("https://{}",state.own_url())),
                     ..Default::default()
                 },
             )
@@ -100,3 +103,4 @@ where
         Ok(GithubExtractor(GithubRepo(claims.repository)))
     }
 }
+

@@ -73,6 +73,10 @@ impl InnerState {
     pub fn docker_url(&self) -> &String {
         &self.docker_url
     }
+    
+    pub fn own_url(&self) -> &String {
+        &self.own_url
+    }
 
     // Returns a JWT key as a String for a svc account
     pub fn create_jwt(&self, name: String) -> crate::Result<String> {

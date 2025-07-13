@@ -146,7 +146,7 @@ pub async fn identify(
     let svc_account = User::find_by_name(&body.service_account, state.db()).await?;
     let idents = svc_account.get_identifiers(state.db()).await?;
 
-    if idents.iter().any(|ident| *ident == *repo) {
+    if !idents.iter().any(|ident| *ident == *repo) {
         return Err(crate::Error::Unauthorized(
             "This repo cant access this service account",
         ));

@@ -32,6 +32,7 @@ pub enum Error {
     Ssl(openssl::error::ErrorStack),
     #[from]
     Utf8(std::str::Utf8Error),
+    Any(String),
 }
 
 impl std::error::Error for Error {}

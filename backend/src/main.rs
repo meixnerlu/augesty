@@ -115,11 +115,7 @@ async fn main() -> Result<()> {
 }
 
 mod trace {
-    use axum::{
-        extract::Request,
-        middleware::Next,
-        response::Response,
-    };
+    use axum::{extract::Request, middleware::Next, response::Response};
     use tokio::time::Instant;
     use tracing_subscriber::EnvFilter;
 
