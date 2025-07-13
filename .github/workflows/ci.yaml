@@ -15,7 +15,7 @@ jobs:
       
       - name: Authenticate with augesty
         id: auth
-        uses: meixnerlu/augesty@latest
+        uses: meixnerlu/augesty@main
         with:
           service_account: ${{ secrets.SVC_NAME }}
           service_url: https://${{ secrets.AUGESTY_URL }}/api/identify
