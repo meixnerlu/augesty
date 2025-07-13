@@ -27267,7 +27267,9 @@ try {
     core.setFailed(`Failed to fetch access token: ${res.statusText}`);
   }
 
-  core.setOutput('accesstoken', res.json().then(data => data.accesstoken));
+  const { accesstoken } = await res.json();
+
+  core.setOutput("accesstoken", accesstoken);
 } catch (err) {
   core.setFailed(err.message);
 }
