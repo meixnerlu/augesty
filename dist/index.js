@@ -27258,7 +27258,7 @@ try {
 
   console.log(`Fetching accesstoken for ${serviceAccount}!`);
 
-  let res = await fetch("${serviceUrl}/api/v1/auth/accesstoken", {method: 'POST', headers: { 
+  let res = await fetch(`${serviceUrl}/api/identify`, {method: 'POST', headers: { 
     'Authorization': `Bearer ${oidcToken}`,
     'Content-Type': 'application/json',
   }, body: JSON.stringify({ 'service_account': serviceAccount }) });

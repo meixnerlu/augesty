@@ -18,7 +18,7 @@ jobs:
         uses: meixnerlu/augesty@main
         with:
           service_account: ${{ secrets.SVC_NAME }}
-          service_url: https://${{ secrets.AUGESTY_URL }}/api/identify
+          service_url: "https://${{ secrets.AUGESTY_URL }}"
       
       - name: Login Registry
         uses: docker/login-action@v3
