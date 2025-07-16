@@ -19,7 +19,7 @@ jwt-simple = { version = "0.12.12", default-features=false, features = ["pure-ru
 base64 = "0.22.1"
 serde = { version = "1.0.219", features = ["derive"] }
 axum-extra = { version = "0.10.1", features = ["query", "typed-header"] }
-github-oidc = { git = "https://github.com/meixnerlu/github-oidc" }
+github-oidc = { version = "0.5", git = "https://github.com/meixnerlu/github-oidc", default-features = false, features = ["rustls-tls"]}
 rand = "0.9.1"
 openssl = "0.10"
 uuid = { version = "1.17.0", features = ["v4"] }
