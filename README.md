@@ -2,6 +2,8 @@
 
 !!! This is a fun project for learning purposes !!!
 
+Im currently refactoring to use postgresql, a better permission system and isolating the logic from the routes.
+
 This repository bundles:
 
 1. **`augesty`** – a Rust‑based token server (in `backend/`)
